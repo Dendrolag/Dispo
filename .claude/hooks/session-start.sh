@@ -42,17 +42,20 @@ if ! su postgres -c "$PGBIN/psql -h /tmp -p $PGPORT -U postgres -lqt" 2>/dev/nul
   su postgres -c "$PGBIN/createdb -h /tmp -p $PGPORT -U postgres $DBNAME" >/dev/null 2>&1
 fi
 
-# Fichier .env local si absent.
+# Fichier .env local si absent (les deux variables pointent vers la base locale).
 if [ ! -f "$REPO_DIR/.env" ]; then
-  echo "DATABASE_URL=\"$DBURL\"" > "$REPO_DIR/.env"
+  {
+    echo "DATABASE_URL=\"$DBURL\""
+    echo "DATABASE_URL_UNPOOLED=\"$DBURL\""
+  } > "$REPO_DIR/.env"
   log "Fichier .env créé."
 fi
 
 # Applique les migrations et génère le client Prisma.
 if [ -d "$REPO_DIR/node_modules" ]; then
   log "Application des migrations Prisma…"
-  DATABASE_URL="$DBURL" npx prisma migrate deploy >/dev/null 2>&1
-  DATABASE_URL="$DBURL" npx prisma generate >/dev/null 2>&1
+  DATABASE_URL="$DBURL" DATABASE_URL_UNPOOLED="$DBURL" npx prisma migrate deploy >/dev/null 2>&1
+  DATABASE_URL="$DBURL" DATABASE_URL_UNPOOLED="$DBURL" npx prisma generate >/dev/null 2>&1
   log "Base prête : $DBURL"
 else
   log "node_modules absent — lancez 'npm install' puis relancez la session."
