@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { tallyVotes, bestSlotIds } from "@/lib/availability";
-import { formatDayLong } from "@/lib/format";
+import { formatDayLong, formatSlotRange } from "@/lib/format";
 import ResultsGrid, {
   type GridParticipant,
   type GridSlot,
 } from "./ResultsGrid";
 import VoteForm, { type VoteSlot } from "./VoteForm";
-import AdminPanel from "./AdminPanel";
+import AdminPanel, { type AdminSlot } from "./AdminPanel";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -70,6 +70,17 @@ export default async function PollPage({ params, searchParams }: PageProps) {
 
   const winners = poll.slots.filter((s) => bestIds.has(s.id));
 
+  const finalSlot = poll.finalSlotId
+    ? poll.slots.find((s) => s.id === poll.finalSlotId) ?? null
+    : null;
+
+  const adminSlots: AdminSlot[] = poll.slots.map((s) => ({
+    id: s.id,
+    label: `${formatDayLong(s.startsAt)} · ${
+      s.endsAt ? formatSlotRange(s.startsAt, s.endsAt) : formatSlotRange(s.startsAt, null)
+    }`,
+  }));
+
   return (
     <div className="flex flex-col gap-8">
       <header>
@@ -97,10 +108,32 @@ export default async function PollPage({ params, searchParams }: PageProps) {
           pollId={poll.id}
           adminToken={poll.adminToken}
           closed={poll.closed}
+          slots={adminSlots}
+          finalSlotId={poll.finalSlotId}
         />
       )}
 
-      {winners.length > 0 && (
+      {finalSlot && (
+        <div className="rounded-2xl border border-yes/40 bg-yes/10 p-5">
+          <p className="text-sm font-medium text-yes">✅ Créneau retenu</p>
+          <p className="mt-1 text-lg font-semibold">
+            {formatDayLong(finalSlot.startsAt)}
+            <span className="ml-2 font-normal text-muted">
+              {finalSlot.endsAt
+                ? formatSlotRange(finalSlot.startsAt, finalSlot.endsAt)
+                : formatSlotRange(finalSlot.startsAt, null)}
+            </span>
+          </p>
+          <a
+            href={`/sondage/${poll.id}/calendrier.ics`}
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+          >
+            📅 Ajouter à mon agenda
+          </a>
+        </div>
+      )}
+
+      {!finalSlot && winners.length > 0 && (
         <div className="rounded-2xl border border-brand/30 bg-brand-soft p-5">
           <p className="text-sm font-medium text-brand">
             {winners.length > 1

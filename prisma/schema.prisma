@@ -8,9 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   // Connexion runtime « poolée » (pgbouncer) — variable fournie par Neon/Vercel.
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
   // Connexion directe (non poolée) pour les migrations — également fournie par
   // Neon/Vercel. En local, on la fait pointer vers la même base (voir .env).
   directUrl = env("DATABASE_URL_UNPOOLED")
@@ -18,19 +18,22 @@ datasource db {
 
 /// Un sondage de disponibilités, partageable via un lien public.
 model Poll {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   /// Jeton secret permettant à l'organisateur de gérer / clôturer le sondage.
-  adminToken    String   @unique @default(cuid())
+  adminToken    String    @unique @default(cuid())
   title         String
   description   String?
   location      String?
   organizerName String?
   /// Empêche de nouvelles réponses lorsque true.
-  closed        Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  closed        Boolean   @default(false)
+  /// Créneau finalement retenu par l'organisateur (null tant qu'indécis).
+  finalSlotId   String?   @unique
+  finalSlot     TimeSlot? @relation("PollFinalSlot", fields: [finalSlotId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  slots        TimeSlot[]
+  slots        TimeSlot[]    @relation("PollSlots")
   participants Participant[]
 
   @@index([createdAt])
@@ -38,17 +41,20 @@ model Poll {
 
 /// Un créneau proposé au vote.
 model TimeSlot {
-  id        String   @id @default(cuid())
-  pollId    String
-  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  id       String    @id @default(cuid())
+  pollId   String
+  poll     Poll      @relation("PollSlots", fields: [pollId], references: [id], onDelete: Cascade)
   /// Début du créneau (UTC).
-  startsAt  DateTime
+  startsAt DateTime
   /// Fin optionnelle ; null = créneau « journée » ou sans heure de fin.
-  endsAt    DateTime?
+  endsAt   DateTime?
   /// Ordre d'affichage.
-  position  Int      @default(0)
+  position Int       @default(0)
 
   votes Vote[]
+
+  /// Renseigné si ce créneau est celui retenu par le sondage (relation inverse).
+  finalOfPoll Poll? @relation("PollFinalSlot")
 
   @@index([pollId])
 }

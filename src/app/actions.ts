@@ -261,6 +261,39 @@ export async function setPollClosed(
   return {};
 }
 
+/**
+ * Définit (ou retire) le créneau retenu par l'organisateur.
+ *
+ * Passer `slotId` non nul fige le choix et clôture le sondage dans la foulée
+ * (le « dénouement » d'un sondage). Passer `null` retire le choix ; l'état
+ * clôturé/ouvert reste alors inchangé (à gérer via setPollClosed).
+ */
+export async function setFinalSlot(
+  pollId: string,
+  adminToken: string,
+  slotId: string | null,
+): Promise<{ error?: string }> {
+  const poll = await prisma.poll.findUnique({
+    where: { id: pollId },
+    include: { slots: { select: { id: true } } },
+  });
+  if (!poll || poll.adminToken !== adminToken) {
+    return { error: "Action non autorisée." };
+  }
+  if (slotId && !poll.slots.some((s) => s.id === slotId)) {
+    return { error: "Ce créneau n'appartient pas au sondage." };
+  }
+
+  await prisma.poll.update({
+    where: { id: pollId },
+    data: slotId
+      ? { finalSlotId: slotId, closed: true }
+      : { finalSlotId: null },
+  });
+  revalidatePath(`/sondage/${pollId}`);
+  return {};
+}
+
 export async function deletePoll(
   pollId: string,
   adminToken: string,
