@@ -48,6 +48,19 @@ export function formatSlotRange(startsAt: Date, endsAt: Date | null): string {
   return `${formatTime(startsAt)} – ${formatTime(endsAt)}`;
 }
 
+/**
+ * Valeur pour un `<input type="datetime-local">` (« YYYY-MM-DDTHH:mm »),
+ * construite à partir des composants UTC (heure « flottante ») pour rester
+ * cohérente avec parseDate côté actions.
+ */
+export function toDateTimeLocalValue(date: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${date.getUTCFullYear()}-${p(date.getUTCMonth() + 1)}-${p(date.getUTCDate())}` +
+    `T${p(date.getUTCHours())}:${p(date.getUTCMinutes())}`
+  );
+}
+
 /** Clé de regroupement par jour (année-mois-jour en heure de Paris). */
 export function dayKey(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {

@@ -82,6 +82,105 @@ export async function createPoll(
   redirect(`/sondage/${poll.id}/partage?admin=${poll.adminToken}`);
 }
 
+export interface UpdateSlotInput {
+  /** Présent = créneau existant (conservé et éventuellement corrigé). */
+  id?: string;
+  startsAt: string;
+  endsAt?: string | null;
+}
+
+export interface UpdatePollInput {
+  pollId: string;
+  adminToken: string;
+  title: string;
+  description?: string;
+  location?: string;
+  organizerName?: string;
+  slots: UpdateSlotInput[];
+}
+
+export async function updatePoll(
+  input: UpdatePollInput,
+): Promise<{ error?: string }> {
+  const poll = await prisma.poll.findUnique({
+    where: { id: input.pollId },
+    include: { slots: { select: { id: true } } },
+  });
+  if (!poll || poll.adminToken !== input.adminToken) {
+    return { error: "Action non autorisée." };
+  }
+
+  const title = input.title?.trim();
+  if (!title) return { error: "Le titre est obligatoire." };
+
+  const existingIds = new Set(poll.slots.map((s) => s.id));
+
+  const parsedSlots = (input.slots ?? [])
+    .map((s) => {
+      const startsAt = parseDate(s.startsAt);
+      if (!startsAt) return null;
+      const endsAt = parseDate(s.endsAt);
+      const validEnd = endsAt && endsAt > startsAt ? endsAt : null;
+      // On ne conserve un id que s'il appartient bien à ce sondage.
+      const id = s.id && existingIds.has(s.id) ? s.id : undefined;
+      return { id, startsAt, endsAt: validEnd };
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null)
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .map((s, position) => ({ ...s, position }));
+
+  if (parsedSlots.length === 0) {
+    return { error: "Proposez au moins un créneau valide." };
+  }
+
+  const keptIds = new Set(
+    parsedSlots.map((s) => s.id).filter((id): id is string => Boolean(id)),
+  );
+  const removedIds = [...existingIds].filter((id) => !keptIds.has(id));
+
+  await prisma.$transaction(async (tx) => {
+    await tx.poll.update({
+      where: { id: poll.id },
+      data: {
+        title,
+        description: input.description?.trim() || null,
+        location: input.location?.trim() || null,
+        organizerName: input.organizerName?.trim() || null,
+      },
+    });
+
+    // Les créneaux retirés emportent leurs votes (onDelete: Cascade).
+    if (removedIds.length > 0) {
+      await tx.timeSlot.deleteMany({ where: { id: { in: removedIds } } });
+    }
+
+    for (const slot of parsedSlots) {
+      if (slot.id) {
+        await tx.timeSlot.update({
+          where: { id: slot.id },
+          data: {
+            startsAt: slot.startsAt,
+            endsAt: slot.endsAt,
+            position: slot.position,
+          },
+        });
+      } else {
+        await tx.timeSlot.create({
+          data: {
+            pollId: poll.id,
+            startsAt: slot.startsAt,
+            endsAt: slot.endsAt,
+            position: slot.position,
+          },
+        });
+      }
+    }
+  });
+
+  revalidatePath(`/sondage/${poll.id}`);
+  redirect(`/sondage/${poll.id}?admin=${input.adminToken}`);
+}
+
 export interface SubmitResponseInput {
   pollId: string;
   name: string;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { setPollClosed, deletePoll } from "@/app/actions";
 
 export default function AdminPanel({
@@ -36,7 +37,13 @@ export default function AdminPanel({
             Vous seul voyez ces commandes (conservez le lien d’administration).
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/sondage/${pollId}/modifier?admin=${adminToken}`}
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-brand-soft"
+          >
+            Modifier
+          </Link>
           <button
             type="button"
             onClick={toggleClosed}
