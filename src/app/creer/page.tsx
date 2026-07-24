@@ -131,38 +131,44 @@ export default function CreatePollPage() {
             {rows.map((row, i) => (
               <div
                 key={row.key}
-                className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-background p-3"
+                className="rounded-xl border border-border bg-background p-3"
               >
-                <span className="text-sm font-medium text-muted">
-                  #{i + 1}
-                </span>
-                <label className="flex-1">
-                  <span className="text-xs text-muted">Début</span>
-                  <input
-                    type="datetime-local"
-                    value={row.start}
-                    onChange={(e) => setStart(row.key, e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
-                  />
-                </label>
-                <label className="flex-1">
-                  <span className="text-xs text-muted">Fin (optionnel)</span>
-                  <input
-                    type="datetime-local"
-                    value={row.end}
-                    onChange={(e) => updateRow(row.key, { end: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => removeRow(row.key)}
-                  disabled={rows.length === 1}
-                  aria-label="Supprimer ce créneau"
-                  className="rounded-lg border border-border px-3 py-2 text-sm text-muted transition hover:text-no disabled:opacity-40"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted">
+                    #{i + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeRow(row.key)}
+                    disabled={rows.length === 1}
+                    aria-label="Supprimer ce créneau"
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition hover:text-no disabled:opacity-40"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-xs text-muted">Début</span>
+                    <input
+                      type="datetime-local"
+                      value={row.start}
+                      onChange={(e) => setStart(row.key, e.target.value)}
+                      className="mt-1 w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-muted">Fin (optionnel)</span>
+                    <input
+                      type="datetime-local"
+                      value={row.end}
+                      onChange={(e) =>
+                        updateRow(row.key, { end: e.target.value })
+                      }
+                      className="mt-1 w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
+                    />
+                  </label>
+                </div>
               </div>
             ))}
           </div>
