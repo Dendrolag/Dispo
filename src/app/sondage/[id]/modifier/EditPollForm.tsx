@@ -42,8 +42,9 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
 
   function addRow() {
     setRows((rs) => {
+      // Reprend la date du dernier créneau et propose 08:00 par défaut.
       const last = rs[rs.length - 1];
-      const prefill = last?.start ? last.start.slice(0, 10) + "T" : "";
+      const prefill = last?.start ? last.start.slice(0, 10) + "T08:00" : "";
       return [...rs, newRow(prefill)];
     });
   }

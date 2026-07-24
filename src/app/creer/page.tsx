@@ -26,9 +26,9 @@ export default function CreatePollPage() {
 
   function addRow() {
     setRows((rs) => {
-      // Pré-remplit la date du dernier créneau pour aller plus vite.
+      // Reprend la date du dernier créneau et propose 08:00 par défaut.
       const last = rs[rs.length - 1];
-      const prefill = last?.start ? last.start.slice(0, 10) + "T" : "";
+      const prefill = last?.start ? last.start.slice(0, 10) + "T08:00" : "";
       return [...rs, newRow(prefill)];
     });
   }
