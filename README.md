@@ -86,6 +86,26 @@ intuitif pour un groupe partageant le même contexte. Voir
 [`src/lib/format.ts`](src/lib/format.ts) et `parseDate` dans
 [`src/app/actions.ts`](src/app/actions.ts).
 
+## Déploiement (Vercel + Neon)
+
+Le projet est prêt pour un déploiement serverless. Deux variables sont
+attendues : `DATABASE_URL` (connexion **poolée**, utilisée par l'app) et
+`DIRECT_URL` (connexion **directe**, utilisée par les migrations).
+
+1. **Créer la base** sur [Neon](https://neon.tech/) (ou Supabase). Récupérer :
+   - la chaîne **poolée** → `DATABASE_URL`
+   - la chaîne **directe** (hôte sans `-pooler`) → `DIRECT_URL`
+2. **Importer le repo** sur [Vercel](https://vercel.com/new) (framework
+   Next.js détecté automatiquement).
+3. **Renseigner les variables d'environnement** `DATABASE_URL` et `DIRECT_URL`
+   dans les réglages du projet Vercel.
+4. **Déployer**. Vercel exécute le script `vercel-build`
+   (`prisma migrate deploy && next build`) : les migrations sont appliquées
+   automatiquement, puis l'app est buildée. Le client Prisma est régénéré via
+   `postinstall`.
+
+Aucune autre configuration n'est nécessaire.
+
 ## Structure
 
 ```

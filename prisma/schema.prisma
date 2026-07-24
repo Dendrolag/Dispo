@@ -9,7 +9,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Connexion runtime (idéalement « poolée » en serverless : pgbouncer).
   url      = env("DATABASE_URL")
+  // Connexion directe (non poolée) utilisée par les migrations.
+  // En local, les deux peuvent pointer vers la même base.
+  directUrl = env("DIRECT_URL")
 }
 
 /// Un sondage de disponibilités, partageable via un lien public.
