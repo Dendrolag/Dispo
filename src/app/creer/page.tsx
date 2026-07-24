@@ -147,8 +147,8 @@ export default function CreatePollPage() {
                     ✕
                   </button>
                 </div>
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  <label className="block">
+                <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="block min-w-0">
                     <span className="text-xs text-muted">Début</span>
                     <input
                       type="datetime-local"
@@ -157,7 +157,7 @@ export default function CreatePollPage() {
                       className="mt-1 w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
                     />
                   </label>
-                  <label className="block">
+                  <label className="block min-w-0">
                     <span className="text-xs text-muted">Fin (optionnel)</span>
                     <input
                       type="datetime-local"
