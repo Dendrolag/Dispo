@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { updatePoll, type UpdateSlotInput } from "@/app/actions";
+import { shiftDateTimeLocal, withTime } from "@/lib/format";
 
 interface SlotRow {
   key: string;
@@ -40,12 +41,26 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
     setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
   }
 
+  // Saisir un début pré-remplit la fin à +1h si elle est encore vide.
+  function setStart(key: string, value: string) {
+    setRows((rs) =>
+      rs.map((r) => {
+        if (r.key !== key) return r;
+        const end = r.end || (value ? shiftDateTimeLocal(value, { hours: 1 }) : "");
+        return { ...r, start: value, end };
+      }),
+    );
+  }
+
   function addRow() {
     setRows((rs) => {
-      // Reprend la date du dernier créneau et propose 08:00 par défaut.
+      // Passe au jour suivant à 08:00, avec une fin par défaut à +1h.
       const last = rs[rs.length - 1];
-      const prefill = last?.start ? last.start.slice(0, 10) + "T08:00" : "";
-      return [...rs, newRow(prefill)];
+      const start = last?.start
+        ? shiftDateTimeLocal(withTime(last.start, "08:00"), { days: 1 })
+        : "";
+      const end = start ? shiftDateTimeLocal(start, { hours: 1 }) : "";
+      return [...rs, newRow(start, end)];
     });
   }
 
@@ -137,7 +152,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
                 <input
                   type="datetime-local"
                   value={row.start}
-                  onChange={(e) => updateRow(row.key, { start: e.target.value })}
+                  onChange={(e) => setStart(row.key, e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 outline-none focus:border-brand"
                 />
               </label>

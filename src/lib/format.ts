@@ -61,6 +61,30 @@ export function toDateTimeLocalValue(date: Date): string {
   );
 }
 
+/**
+ * Décale une valeur `datetime-local` (« YYYY-MM-DDTHH:mm ») en heure
+ * « flottante » (UTC). Renvoie la valeur inchangée si elle est vide/invalide.
+ */
+export function shiftDateTimeLocal(
+  value: string,
+  opts: { days?: number; hours?: number; minutes?: number },
+): string {
+  if (!value) return value;
+  const iso = value.length === 16 ? `${value}:00Z` : `${value}Z`;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return value;
+  if (opts.days) d.setUTCDate(d.getUTCDate() + opts.days);
+  if (opts.hours) d.setUTCHours(d.getUTCHours() + opts.hours);
+  if (opts.minutes) d.setUTCMinutes(d.getUTCMinutes() + opts.minutes);
+  return toDateTimeLocalValue(d);
+}
+
+/** Remplace l'heure d'une valeur `datetime-local` en conservant la date. */
+export function withTime(value: string, time: string): string {
+  if (!value) return value;
+  return `${value.slice(0, 10)}T${time}`;
+}
+
 /** Clé de regroupement par jour (année-mois-jour en heure de Paris). */
 export function dayKey(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {
