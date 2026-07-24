@@ -1,0 +1,82 @@
+// Dispo — schéma de données
+// Un sondage (Poll) propose plusieurs créneaux (TimeSlot).
+// Les participants (Participant) votent leur disponibilité (Vote) sur chaque créneau.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Un sondage de disponibilités, partageable via un lien public.
+model Poll {
+  id            String   @id @default(cuid())
+  /// Jeton secret permettant à l'organisateur de gérer / clôturer le sondage.
+  adminToken    String   @unique @default(cuid())
+  title         String
+  description   String?
+  location      String?
+  organizerName String?
+  /// Empêche de nouvelles réponses lorsque true.
+  closed        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  slots        TimeSlot[]
+  participants Participant[]
+
+  @@index([createdAt])
+}
+
+/// Un créneau proposé au vote.
+model TimeSlot {
+  id        String   @id @default(cuid())
+  pollId    String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  /// Début du créneau (UTC).
+  startsAt  DateTime
+  /// Fin optionnelle ; null = créneau « journée » ou sans heure de fin.
+  endsAt    DateTime?
+  /// Ordre d'affichage.
+  position  Int      @default(0)
+
+  votes Vote[]
+
+  @@index([pollId])
+}
+
+/// Une personne ayant répondu au sondage.
+model Participant {
+  id        String   @id @default(cuid())
+  pollId    String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+
+  votes Vote[]
+
+  @@index([pollId])
+}
+
+enum Availability {
+  YES
+  NO
+  MAYBE
+}
+
+/// La disponibilité d'un participant pour un créneau donné.
+model Vote {
+  id            String       @id @default(cuid())
+  participantId String
+  participant   Participant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  slotId        String
+  slot          TimeSlot     @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  status        Availability @default(YES)
+
+  @@unique([participantId, slotId])
+  @@index([slotId])
+}
