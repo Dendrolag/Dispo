@@ -1,17 +1,80 @@
 @import "tailwindcss";
 
+/*
+ * Charte Dispo — cf. le handoff d'identité.
+ * Le symbole du logo (grille de créneaux avec la case retenue en vert) donne
+ * sa couleur au produit : le vert de marque est aussi celui du vote « oui ».
+ * Aucune police n'est chargée : la pile système Helvetica suffit et le logo
+ * est net dès le premier rendu.
+ */
 :root {
-  --background: #f8fafc;
-  --surface: #ffffff;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --brand: #6d28d9;
+  /* Couleurs de marque */
+  --dispo-green: #2e9e52;
+  --dispo-green-night: #6fd086;
+  --dispo-green-hover: #00853b;
+  --dispo-ink: #1a1b15;
+  --dispo-ink-soft: #51544c;
+  --dispo-muted: #797b74;
+  --dispo-cell: #d3dad2;
+  --dispo-border: #e4e5e1;
+  --dispo-hairline: #eaece8;
+  --dispo-panel: #fbfaf7;
+  --dispo-paper: #f7f7f3;
+  --dispo-night: #151711;
+  --dispo-on-night: #f6f5f2;
+
+  /* Rôles applicatifs (thème clair) */
+  --background: var(--dispo-paper);
+  --surface: var(--dispo-panel);
+  --foreground: var(--dispo-ink);
+  --muted: var(--dispo-ink-soft);
+  --subtle: var(--dispo-muted);
+  --border: var(--dispo-border);
+  --hairline: var(--dispo-hairline);
+  --brand: var(--dispo-green);
+  --brand-hover: var(--dispo-green-hover);
   --brand-fg: #ffffff;
-  --brand-soft: #ede9fe;
-  --yes: #16a34a;
-  --maybe: #d97706;
-  --no: #dc2626;
+  --brand-soft: color-mix(in oklab, var(--brand) 12%, var(--surface));
+
+  /* États de disponibilité — le « oui » est le vert de la case retenue. */
+  --yes: var(--dispo-green);
+  --maybe: #b5760c;
+  --no: #b3261d;
+
+  /* Logo : suit le thème (ton « auto » du composant DispoLogo). */
+  --logo-word: var(--dispo-ink);
+  --logo-cell: var(--dispo-cell);
+  --logo-accent: var(--dispo-green);
+  --logo-tile-bg: var(--dispo-green);
+  --logo-tile-cell: rgba(255, 255, 255, 0.38);
+  --logo-tile-accent: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--dispo-night);
+    --surface: #1c1f18;
+    --foreground: var(--dispo-on-night);
+    --muted: #a9aca2;
+    --subtle: #8b8e85;
+    --border: #2b2f26;
+    --hairline: #23271f;
+    /* Sur fond sombre, le vert plein manque de contraste : on passe au vert
+       nuit, qui réclame en retour une encre sombre par-dessus. */
+    --brand: var(--dispo-green-night);
+    --brand-hover: #8adb9c;
+    --brand-fg: var(--dispo-night);
+    --yes: var(--dispo-green-night);
+    --maybe: #e0a338;
+    --no: #f0837a;
+
+    --logo-word: var(--dispo-on-night);
+    --logo-cell: rgba(255, 255, 255, 0.28);
+    --logo-accent: var(--dispo-green-night);
+    --logo-tile-bg: var(--dispo-green-night);
+    --logo-tile-cell: rgba(21, 23, 17, 0.35);
+    --logo-tile-accent: var(--dispo-night);
+  }
 }
 
 @theme inline {
@@ -19,35 +82,50 @@
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
   --color-border: var(--border);
+  --color-hairline: var(--hairline);
   --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-fg: var(--brand-fg);
   --color-brand-soft: var(--brand-soft);
   --color-yes: var(--yes);
   --color-maybe: var(--maybe);
   --color-no: var(--no);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1120;
-    --surface: #111827;
-    --foreground: #e2e8f0;
-    --muted: #94a3b8;
-    --border: #1f2937;
-    --brand: #8b5cf6;
-    --brand-fg: #ffffff;
-    --brand-soft: #211a3a;
-    --yes: #22c55e;
-    --maybe: #f59e0b;
-    --no: #ef4444;
-  }
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Rayons de la charte : 9 px boutons · 14 px panneaux · 20 px cartes. */
+  --radius-lg: 9px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Titres : 500 / -0.02em (le logotype seul monte à 700 / -0.035em). */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+}
+
+/* Libellés techniques en capitales : mono, interlettrage ouvert. */
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Anneau de focus de la charte. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
 }

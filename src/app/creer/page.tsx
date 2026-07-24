@@ -195,7 +195,7 @@ export default function CreatePollPage() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:opacity-90 disabled:opacity-60"
+          className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
         >
           {pending ? "Création…" : "Créer le sondage"}
         </button>

@@ -22,10 +22,10 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16">
       <section className="mx-auto max-w-2xl text-center">
-        <p className="mb-3 text-sm font-medium text-brand">
+        <p className="label-mono mb-4 text-brand">
           L&apos;alternative gratuite à Doodle
         </p>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="text-4xl font-bold sm:text-5xl">
           Trouvez un créneau commun,
           <br />
           sans prise de tête.
@@ -37,7 +37,7 @@ export default function Home() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/creer"
-            className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:opacity-90"
+            className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover"
           >
             Créer un sondage gratuitement
           </Link>
@@ -57,9 +57,7 @@ export default function Home() {
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-xl">
                 {step.emoji}
               </span>
-              <span className="text-sm font-semibold text-muted">
-                Étape {i + 1}
-              </span>
+              <span className="label-mono text-subtle">Étape {i + 1}</span>
             </div>
             <h2 className="mb-1 text-lg font-semibold">{step.title}</h2>
             <p className="text-sm text-muted">{step.text}</p>

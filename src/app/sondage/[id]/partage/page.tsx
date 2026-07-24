@@ -62,7 +62,7 @@ export default async function SharePage({ params, searchParams }: PageProps) {
         <div className="flex flex-wrap gap-3">
           <Link
             href={adminUrl ?? publicUrl}
-            className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg transition hover:opacity-90"
+            className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg transition hover:bg-brand-hover"
           >
             Voir le sondage
           </Link>

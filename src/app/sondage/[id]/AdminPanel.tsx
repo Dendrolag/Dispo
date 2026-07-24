@@ -122,7 +122,7 @@ export default function AdminPanel({
             type="button"
             onClick={confirmFinal}
             disabled={pending || !choice || choice === finalSlotId}
-            className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
           >
             Valider ce créneau
           </button>

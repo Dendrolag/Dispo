@@ -143,7 +143,7 @@ export default async function PollPage({ params, searchParams }: PageProps) {
           </p>
           <a
             href={`/sondage/${poll.id}/calendrier.ics`}
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
           >
             📅 Ajouter à mon agenda
           </a>

@@ -43,7 +43,7 @@ export default function CopyField({
         <button
           type="button"
           onClick={copy}
-          className="shrink-0 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-fg transition hover:opacity-90"
+          className="shrink-0 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-fg transition hover:bg-brand-hover"
         >
           {copied ? "Copié ✓" : "Copier"}
         </button>
