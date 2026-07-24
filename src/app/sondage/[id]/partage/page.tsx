@@ -26,9 +26,12 @@ export default async function SharePage({ params, searchParams }: PageProps) {
 
   const origin = await baseUrl();
   const publicUrl = `${origin}/sondage/${poll.id}`;
-  const adminUrl = admin
-    ? `${origin}/sondage/${poll.id}?admin=${admin}`
-    : null;
+  // On ne présente un lien d'administration que si le jeton est bien le bon :
+  // sinon la page afficherait comme « privé » un lien sans aucun pouvoir.
+  const adminUrl =
+    admin && admin === poll.adminToken
+      ? `${origin}/sondage/${poll.id}?admin=${poll.adminToken}`
+      : null;
 
   return (
     <div className="mx-auto max-w-2xl">

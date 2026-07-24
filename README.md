@@ -13,8 +13,14 @@ laissez Dispo faire ressortir le meilleur moment pour tout le monde.
   d'administration privé pour l'organisateur.
 - **Voter** : chaque participant indique sa disponibilité par créneau
   (Oui / Si besoin / Non), et peut envoyer sa réponse sans créer de compte.
+- **Corriger sa réponse** : un lien « Modifier » sur chaque ligne de la grille
+  rouvre le formulaire pré-rempli. Comme le sondage lui-même, ce lien est
+  accessible à toute personne disposant de l'adresse du sondage (pas de compte,
+  donc pas de réponse « privée »).
 - **Résultats en direct** : grille façon Doodle, décompte par créneau, et mise
   en évidence automatique du/des meilleur(s) créneau(x).
+- **Créneau retenu** : l'organisateur fige le créneau final, ce qui clôture le
+  sondage et propose à chacun un export agenda (`.ics`).
 - **Gestion** : l'organisateur peut clôturer, rouvrir ou supprimer le sondage
   via son lien d'administration.
 

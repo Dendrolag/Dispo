@@ -85,6 +85,7 @@ export default function CreatePollPage() {
             <span className="text-sm font-medium">Titre *</span>
             <input
               name="title"
+              maxLength={200}
               required
               placeholder="Ex. Réunion d'équipe, dîner entre amis…"
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
@@ -95,6 +96,7 @@ export default function CreatePollPage() {
             <span className="text-sm font-medium">Description</span>
             <textarea
               name="description"
+              maxLength={2000}
               rows={2}
               placeholder="Optionnel — précisez l'objet, l'ordre du jour…"
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
@@ -106,6 +108,7 @@ export default function CreatePollPage() {
               <span className="text-sm font-medium">Lieu</span>
               <input
                 name="location"
+                maxLength={120}
                 placeholder="Optionnel"
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
               />
@@ -114,6 +117,7 @@ export default function CreatePollPage() {
               <span className="text-sm font-medium">Votre nom</span>
               <input
                 name="organizerName"
+                maxLength={120}
                 placeholder="Optionnel"
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
               />

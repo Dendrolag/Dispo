@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Availability, type SlotTally } from "@/lib/availability";
 import { formatDay, formatSlotRange, formatTime, dayKey } from "@/lib/format";
 
@@ -11,12 +12,28 @@ export interface GridParticipant {
   id: string;
   name: string;
   votes: Record<string, Availability>;
+  /** Lien de modification de cette réponse ; null si le sondage est clôturé. */
+  editHref?: string | null;
+  /** Vrai si cette réponse est celle en cours de modification. */
+  editing?: boolean;
 }
 
-const MARK: Record<Availability, { symbol: string; className: string }> = {
-  [Availability.YES]: { symbol: "✓", className: "bg-yes/15 text-yes" },
-  [Availability.MAYBE]: { symbol: "~", className: "bg-maybe/15 text-maybe" },
-  [Availability.NO]: { symbol: "✕", className: "bg-no/10 text-no/70" },
+const MARK: Record<Availability, { symbol: string; label: string; className: string }> = {
+  [Availability.YES]: {
+    symbol: "✓",
+    label: "Disponible",
+    className: "bg-yes/15 text-yes",
+  },
+  [Availability.MAYBE]: {
+    symbol: "~",
+    label: "Si besoin",
+    className: "bg-maybe/15 text-maybe",
+  },
+  [Availability.NO]: {
+    symbol: "✕",
+    label: "Non disponible",
+    className: "bg-no/10 text-no/70",
+  },
 };
 
 export default function ResultsGrid({
@@ -51,6 +68,7 @@ export default function ResultsGrid({
             {dayGroups.map((g) => (
               <th
                 key={g.key}
+                scope="colgroup"
                 colSpan={g.count}
                 className="border-l border-border p-2 text-center font-semibold"
               >
@@ -65,6 +83,7 @@ export default function ResultsGrid({
               return (
                 <th
                   key={slot.id}
+                  scope="col"
                   className={`border-l border-border p-2 text-center font-normal text-muted ${
                     best ? "bg-brand-soft" : ""
                   }`}
@@ -97,10 +116,29 @@ export default function ResultsGrid({
             </tr>
           )}
           {participants.map((p) => (
-            <tr key={p.id} className="border-t border-border">
-              <td className="sticky left-0 z-10 bg-surface p-3 font-medium">
-                {p.name}
-              </td>
+            <tr
+              key={p.id}
+              className={`border-t border-border ${
+                p.editing ? "bg-brand-soft/40" : ""
+              }`}
+            >
+              <th
+                scope="row"
+                className="sticky left-0 z-10 bg-surface p-3 text-left font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  <span>{p.name}</span>
+                  {p.editHref && (
+                    <Link
+                      href={p.editHref}
+                      aria-label={`Modifier la réponse de ${p.name}`}
+                      className="shrink-0 text-xs font-normal text-brand underline decoration-dotted"
+                    >
+                      Modifier
+                    </Link>
+                  )}
+                </span>
+              </th>
               {slots.map((slot) => {
                 const status = p.votes[slot.id] ?? Availability.NO;
                 const mark = MARK[status];
@@ -114,9 +152,11 @@ export default function ResultsGrid({
                   >
                     <span
                       className={`inline-grid h-7 w-7 place-items-center rounded-full font-semibold ${mark.className}`}
+                      aria-hidden="true"
                     >
                       {mark.symbol}
                     </span>
+                    <span className="sr-only">{mark.label}</span>
                   </td>
                 );
               })}

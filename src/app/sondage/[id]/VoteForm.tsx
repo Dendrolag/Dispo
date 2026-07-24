@@ -34,34 +34,45 @@ export default function VoteForm({
   initialVotes?: Record<string, Availability>;
   participantId?: string;
 }) {
+  // Après un premier envoi, on retient l'id créé : renvoyer met alors à jour la
+  // réponse au lieu de créer un doublon (double clic, correction immédiate…).
+  const [currentId, setCurrentId] = useState(participantId);
   const [name, setName] = useState(initialName);
   const [votes, setVotes] = useState<Record<string, Availability>>(
     initialVotes ?? {},
   );
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function setVote(slotId: string, value: Availability) {
     setVotes((v) => ({ ...v, [slotId]: value }));
+    setSaved(false);
   }
 
   function handleSubmit() {
     setError(null);
+    setSaved(false);
     startTransition(async () => {
       const result = await submitResponse({
         pollId,
         name,
         votes,
-        participantId,
+        participantId: currentId,
       });
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      if (result?.participantId) setCurrentId(result.participantId);
+      setSaved(true);
     });
   }
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-6">
       <h2 className="text-lg font-semibold">
-        {participantId ? "Modifier votre réponse" : "Répondre au sondage"}
+        {currentId ? "Modifier votre réponse" : "Répondre au sondage"}
       </h2>
 
       <label className="mt-4 block">
@@ -69,6 +80,7 @@ export default function VoteForm({
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
+          maxLength={120}
           placeholder="Prénom ou pseudo"
           className="mt-1 w-full max-w-xs rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
         />
@@ -88,11 +100,16 @@ export default function VoteForm({
                 <span className="font-medium">{formatDay(start)}</span>{" "}
                 <span className="text-muted">{formatSlotRange(start, end)}</span>
               </div>
-              <div className="flex overflow-hidden rounded-lg border border-border">
+              <div
+                role="group"
+                aria-label={`Disponibilité pour ${formatDay(start)} ${formatSlotRange(start, end)}`}
+                className="flex overflow-hidden rounded-lg border border-border"
+              >
                 {CHOICES.map((choice) => (
                   <button
                     key={choice.value}
                     type="button"
+                    aria-pressed={current === choice.value}
                     data-on={current === choice.value}
                     onClick={() => setVote(slot.id, choice.value)}
                     className={`px-3 py-1.5 text-sm transition data-[on=true]:font-medium data-[on=true]:text-white ${choice.className}`}
@@ -107,8 +124,20 @@ export default function VoteForm({
       </ul>
 
       {error && (
-        <p className="mt-4 rounded-lg border border-no/40 bg-no/10 px-4 py-3 text-sm text-no">
+        <p
+          role="alert"
+          className="mt-4 rounded-lg border border-no/40 bg-no/10 px-4 py-3 text-sm text-no"
+        >
           {error}
+        </p>
+      )}
+
+      {saved && !error && (
+        <p
+          role="status"
+          className="mt-4 rounded-lg border border-yes/40 bg-yes/10 px-4 py-3 text-sm text-yes"
+        >
+          Réponse enregistrée ✓
         </p>
       )}
 
@@ -120,7 +149,7 @@ export default function VoteForm({
       >
         {pending
           ? "Enregistrement…"
-          : participantId
+          : currentId
             ? "Mettre à jour ma réponse"
             : "Envoyer ma réponse"}
       </button>

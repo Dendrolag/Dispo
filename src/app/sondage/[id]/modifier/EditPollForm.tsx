@@ -98,6 +98,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
           <span className="text-sm font-medium">Titre *</span>
           <input
             name="title"
+            maxLength={200}
             required
             defaultValue={data.title}
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
@@ -108,6 +109,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
           <span className="text-sm font-medium">Description</span>
           <textarea
             name="description"
+            maxLength={2000}
             rows={2}
             defaultValue={data.description}
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
@@ -119,6 +121,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
             <span className="text-sm font-medium">Lieu</span>
             <input
               name="location"
+              maxLength={120}
               defaultValue={data.location}
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
             />
@@ -127,6 +130,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
             <span className="text-sm font-medium">Votre nom</span>
             <input
               name="organizerName"
+              maxLength={120}
               defaultValue={data.organizerName}
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-brand"
             />

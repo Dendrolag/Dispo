@@ -1,4 +1,6 @@
+import { cache } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { tallyVotes, bestSlotIds } from "@/lib/availability";
@@ -12,10 +14,12 @@ import AdminPanel, { type AdminSlot } from "./AdminPanel";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ admin?: string }>;
+  searchParams: Promise<{ admin?: string; participant?: string }>;
 }
 
-async function getPoll(id: string) {
+// `cache` dédoublonne l'appel au sein d'une même requête : generateMetadata et
+// le rendu de la page partagent ainsi une seule lecture en base.
+const getPoll = cache(async (id: string) => {
   return prisma.poll.findUnique({
     where: { id },
     include: {
@@ -26,23 +30,31 @@ async function getPoll(id: string) {
       },
     },
   });
-}
+});
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const poll = await prisma.poll.findUnique({ where: { id } });
+  const poll = await getPoll(id);
   return { title: poll ? poll.title : "Sondage introuvable" };
 }
 
 export default async function PollPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const { admin } = await searchParams;
+  const { admin, participant } = await searchParams;
   const poll = await getPoll(id);
   if (!poll) notFound();
 
   const isAdmin = Boolean(admin) && admin === poll.adminToken;
+
+  // Réponse en cours de modification (lien « Modifier » de la grille).
+  const editing = participant
+    ? poll.participants.find((p) => p.id === participant) ?? null
+    : null;
+
+  // Conserve le contexte organisateur dans les liens de la grille.
+  const adminQuery = isAdmin ? `admin=${poll.adminToken}&` : "";
 
   const slotIds = poll.slots.map((s) => s.id);
   const allVotes = poll.participants.flatMap((p) =>
@@ -60,6 +72,11 @@ export default async function PollPage({ params, searchParams }: PageProps) {
     id: p.id,
     name: p.name,
     votes: Object.fromEntries(p.votes.map((v) => [v.slotId, v.status])),
+    // Pas de lien de modification si le sondage est clôturé.
+    editHref: poll.closed
+      ? null
+      : `/sondage/${poll.id}?${adminQuery}participant=${p.id}#repondre`,
+    editing: editing?.id === p.id,
   }));
 
   const voteSlots: VoteSlot[] = poll.slots.map((s) => ({
@@ -178,13 +195,45 @@ export default async function PollPage({ params, searchParams }: PageProps) {
         </div>
       </section>
 
-      {poll.closed ? (
-        <p className="rounded-2xl border border-border bg-surface p-6 text-center text-muted">
-          Ce sondage est clôturé, il n’est plus possible d’y répondre.
-        </p>
-      ) : (
-        <VoteForm pollId={poll.id} slots={voteSlots} />
-      )}
+      <div id="repondre" className="scroll-mt-4">
+        {poll.closed ? (
+          <p className="rounded-2xl border border-border bg-surface p-6 text-center text-muted">
+            Ce sondage est clôturé, il n’est plus possible d’y répondre.
+          </p>
+        ) : (
+          <>
+            <VoteForm
+              // Repart d'un formulaire vierge quand on change de participant.
+              key={editing?.id ?? "new"}
+              pollId={poll.id}
+              slots={voteSlots}
+              participantId={editing?.id}
+              initialName={editing?.name ?? ""}
+              initialVotes={
+                editing
+                  ? Object.fromEntries(
+                      editing.votes.map((v) => [v.slotId, v.status]),
+                    )
+                  : undefined
+              }
+            />
+            {editing && (
+              <p className="mt-3 text-sm text-muted">
+                Vous modifiez la réponse de{" "}
+                <span className="font-medium">{editing.name}</span>.{" "}
+                <Link
+                  href={`/sondage/${poll.id}${
+                    isAdmin ? `?admin=${poll.adminToken}` : ""
+                  }#repondre`}
+                  className="text-brand underline"
+                >
+                  Répondre en tant que quelqu’un d’autre
+                </Link>
+              </p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

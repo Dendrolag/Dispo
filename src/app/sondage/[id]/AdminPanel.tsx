@@ -108,6 +108,7 @@ export default function AdminPanel({
             value={choice}
             onChange={(e) => setChoice(e.target.value)}
             disabled={pending}
+            aria-label="Créneau retenu"
             className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-brand disabled:opacity-60"
           >
             <option value="">— Choisir un créneau —</option>

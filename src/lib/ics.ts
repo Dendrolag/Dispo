@@ -41,19 +41,39 @@ function utcStamp(date: Date): string {
   return `${floatingStamp(date)}Z`;
 }
 
-/** Repli des lignes à 75 octets (RFC 5545) : continuation par espace. */
+/**
+ * Repli des lignes à 75 octets (RFC 5545) : continuation par un espace.
+ *
+ * La limite est exprimée en octets, pas en caractères : on mesure donc l'UTF-8
+ * et on coupe sur des frontières de points de code (un « é » pèse 2 octets, un
+ * emoji 4). Découper naïvement la chaîne casserait les caractères non-ASCII —
+ * or les titres accentués ou avec emoji sont la norme ici.
+ */
 function foldLine(line: string): string {
-  if (line.length <= 75) return line;
+  const encoder = new TextEncoder();
+  if (encoder.encode(line).length <= 75) return line;
+
   const chunks: string[] = [];
-  let rest = line;
-  chunks.push(rest.slice(0, 75));
-  rest = rest.slice(75);
-  while (rest.length > 74) {
-    chunks.push(" " + rest.slice(0, 74));
-    rest = rest.slice(74);
+  let current = "";
+  let currentBytes = 0;
+  // Première ligne : 75 octets ; les suivantes 74, l'espace de continuation
+  // comptant dans la limite.
+  let limit = 75;
+
+  for (const char of line) {
+    const size = encoder.encode(char).length;
+    if (currentBytes + size > limit) {
+      chunks.push(current);
+      current = "";
+      currentBytes = 0;
+      limit = 74;
+    }
+    current += char;
+    currentBytes += size;
   }
-  if (rest.length > 0) chunks.push(" " + rest);
-  return chunks.join("\r\n");
+  if (current) chunks.push(current);
+
+  return chunks.join("\r\n ");
 }
 
 /** Construit un calendrier iCalendar à un seul événement. */

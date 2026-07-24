@@ -31,6 +31,20 @@ export interface CreatePollResult {
  * (voir lib/format, également en UTC) correspond exactement à ce qui a été saisi,
  * indépendamment du fuseau du serveur ou des participants.
  */
+// Bornes de saisie. Les Server Actions étant appelables directement (sans
+// passer par l'UI), on ne se repose pas sur les limites du formulaire.
+const MAX_TITLE = 200;
+const MAX_TEXT = 2000;
+const MAX_SHORT = 120;
+const MAX_SLOTS = 100;
+
+/** Tronque et nettoie une valeur texte optionnelle ; null si vide. */
+function cleanText(value: string | undefined | null, max: number): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, max);
+}
+
 function parseDate(value?: string | null): Date | null {
   if (!value) return null;
   let normalized = value.trim();
@@ -47,12 +61,13 @@ function parseDate(value?: string | null): Date | null {
 export async function createPoll(
   input: CreatePollInput,
 ): Promise<CreatePollResult> {
-  const title = input.title?.trim();
+  const title = cleanText(input.title, MAX_TITLE);
   if (!title) {
     return { error: "Le titre est obligatoire." };
   }
 
   const parsedSlots = (input.slots ?? [])
+    .slice(0, MAX_SLOTS)
     .map((s, index) => {
       const startsAt = parseDate(s.startsAt);
       if (!startsAt) return null;
@@ -72,9 +87,9 @@ export async function createPoll(
   const poll = await prisma.poll.create({
     data: {
       title,
-      description: input.description?.trim() || null,
-      location: input.location?.trim() || null,
-      organizerName: input.organizerName?.trim() || null,
+      description: cleanText(input.description, MAX_TEXT),
+      location: cleanText(input.location, MAX_SHORT),
+      organizerName: cleanText(input.organizerName, MAX_SHORT),
       slots: { create: parsedSlots },
     },
   });
@@ -110,12 +125,13 @@ export async function updatePoll(
     return { error: "Action non autorisée." };
   }
 
-  const title = input.title?.trim();
+  const title = cleanText(input.title, MAX_TITLE);
   if (!title) return { error: "Le titre est obligatoire." };
 
   const existingIds = new Set(poll.slots.map((s) => s.id));
 
   const parsedSlots = (input.slots ?? [])
+    .slice(0, MAX_SLOTS)
     .map((s) => {
       const startsAt = parseDate(s.startsAt);
       if (!startsAt) return null;
@@ -143,9 +159,9 @@ export async function updatePoll(
       where: { id: poll.id },
       data: {
         title,
-        description: input.description?.trim() || null,
-        location: input.location?.trim() || null,
-        organizerName: input.organizerName?.trim() || null,
+        description: cleanText(input.description, MAX_TEXT),
+        location: cleanText(input.location, MAX_SHORT),
+        organizerName: cleanText(input.organizerName, MAX_SHORT),
       },
     });
 
@@ -192,12 +208,14 @@ export interface SubmitResponseInput {
 
 export interface SubmitResponseResult {
   error?: string;
+  /** Id du participant créé ou mis à jour (permet d'enchaîner sur une modification). */
+  participantId?: string;
 }
 
 export async function submitResponse(
   input: SubmitResponseInput,
 ): Promise<SubmitResponseResult> {
-  const name = input.name?.trim();
+  const name = cleanText(input.name, MAX_SHORT);
   if (!name) return { error: "Indiquez votre nom." };
 
   const poll = await prisma.poll.findUnique({
@@ -212,7 +230,7 @@ export async function submitResponse(
     .filter(([slotId]) => validSlotIds.has(slotId))
     .map(([slotId, status]) => ({ slotId, status }));
 
-  await prisma.$transaction(async (tx) => {
+  const savedId = await prisma.$transaction(async (tx) => {
     let participantId = input.participantId;
 
     if (participantId) {
@@ -241,10 +259,12 @@ export async function submitResponse(
         data: votesData.map((v) => ({ ...v, participantId: participantId! })),
       });
     }
+
+    return participantId;
   });
 
   revalidatePath(`/sondage/${input.pollId}`);
-  return {};
+  return { participantId: savedId };
 }
 
 export async function setPollClosed(
