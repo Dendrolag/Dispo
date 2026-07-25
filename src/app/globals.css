@@ -32,12 +32,22 @@
   --border: var(--dispo-border);
   --hairline: var(--dispo-hairline);
   --brand: var(--dispo-green);
-  --brand-hover: var(--dispo-green-hover);
+  /*
+   * Aplats et petits textes verts : le vert de marque sur blanc plafonne à
+   * 3,43:1, sous le seuil AA (4,5) pour du texte courant. On réserve donc
+   * `brand` aux surfaces décoratives (case du logo, bordures, aplats larges)
+   * et on passe aux aplats sur `brand-strong` — le vert de survol de la
+   * charte, à 4,75:1 sur blanc. Le survol le fonce d'un cran.
+   */
+  --brand-strong: var(--dispo-green-hover);
+  --brand-hover: color-mix(in oklab, var(--dispo-green-hover) 86%, var(--dispo-ink));
   --brand-fg: #ffffff;
   --brand-soft: color-mix(in oklab, var(--brand) 12%, var(--surface));
 
-  /* États de disponibilité — le « oui » est le vert de la case retenue. */
+  /* États de disponibilité — le « oui » est le vert de la case retenue.
+     `yes` colore les pastilles et aplats, `yes-strong` les petits textes. */
   --yes: var(--dispo-green);
+  --yes-strong: var(--dispo-green-hover);
   --maybe: #b5760c;
   --no: #b3261d;
 
@@ -60,11 +70,14 @@
     --border: #2b2f26;
     --hairline: #23271f;
     /* Sur fond sombre, le vert plein manque de contraste : on passe au vert
-       nuit, qui réclame en retour une encre sombre par-dessus. */
+       nuit, qui réclame en retour une encre sombre par-dessus. Il atteint
+       9,5:1, donc aplat et accent se confondent — seul le survol s'éclaircit. */
     --brand: var(--dispo-green-night);
+    --brand-strong: var(--dispo-green-night);
     --brand-hover: #8adb9c;
     --brand-fg: var(--dispo-night);
     --yes: var(--dispo-green-night);
+    --yes-strong: var(--dispo-green-night);
     --maybe: #e0a338;
     --no: #f0837a;
 
@@ -86,10 +99,12 @@
   --color-border: var(--border);
   --color-hairline: var(--hairline);
   --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
   --color-brand-hover: var(--brand-hover);
   --color-brand-fg: var(--brand-fg);
   --color-brand-soft: var(--brand-soft);
   --color-yes: var(--yes);
+  --color-yes-strong: var(--yes-strong);
   --color-maybe: var(--maybe);
   --color-no: var(--no);
 

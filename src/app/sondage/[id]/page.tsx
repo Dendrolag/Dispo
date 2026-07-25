@@ -115,8 +115,8 @@ export default async function PollPage({ params, searchParams }: PageProps) {
           </p>
         )}
         <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted">
-          {poll.organizerName && <span>👤 Organisé par {poll.organizerName}</span>}
-          {poll.location && <span>📍 {poll.location}</span>}
+          {poll.organizerName && <span>Organisé par {poll.organizerName}</span>}
+          {poll.location && <span>{poll.location}</span>}
         </div>
       </header>
 
@@ -132,7 +132,7 @@ export default async function PollPage({ params, searchParams }: PageProps) {
 
       {finalSlot && (
         <div className="rounded-2xl border border-yes/40 bg-yes/10 p-5">
-          <p className="text-sm font-medium text-yes">✅ Créneau retenu</p>
+          <p className="label-mono text-yes-strong">Créneau retenu</p>
           <p className="mt-1 text-lg font-semibold">
             {formatDayLong(finalSlot.startsAt)}
             <span className="ml-2 font-normal text-muted">
@@ -143,16 +143,16 @@ export default async function PollPage({ params, searchParams }: PageProps) {
           </p>
           <a
             href={`/sondage/${poll.id}/calendrier.ics`}
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-strong px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
           >
-            📅 Ajouter à mon agenda
+            Ajouter à mon agenda
           </a>
         </div>
       )}
 
       {!finalSlot && winners.length > 0 && (
         <div className="rounded-2xl border border-brand/30 bg-brand-soft p-5">
-          <p className="text-sm font-medium text-brand">
+          <p className="text-sm font-medium text-brand-strong">
             {winners.length > 1
               ? "Créneaux les plus favorables (ex æquo)"
               : "Meilleur créneau pour l’instant"}
@@ -184,7 +184,7 @@ export default async function PollPage({ params, searchParams }: PageProps) {
         />
         <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted">
           <span>
-            <span className="text-yes">✓</span> Disponible
+            <span className="text-yes-strong">✓</span> Disponible
           </span>
           <span>
             <span className="text-maybe">~</span> Si besoin
@@ -225,7 +225,7 @@ export default async function PollPage({ params, searchParams }: PageProps) {
                   href={`/sondage/${poll.id}${
                     isAdmin ? `?admin=${poll.adminToken}` : ""
                   }#repondre`}
-                  className="text-brand underline"
+                  className="text-brand-strong underline"
                 >
                   Répondre en tant que quelqu’un d’autre
                 </Link>

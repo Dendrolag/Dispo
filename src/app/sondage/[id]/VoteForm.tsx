@@ -135,7 +135,7 @@ export default function VoteForm({
       {saved && !error && (
         <p
           role="status"
-          className="mt-4 rounded-lg border border-yes/40 bg-yes/10 px-4 py-3 text-sm text-yes"
+          className="mt-4 rounded-lg border border-yes/40 bg-yes/10 px-4 py-3 text-sm text-yes-strong"
         >
           Réponse enregistrée ✓
         </p>
@@ -145,7 +145,7 @@ export default function VoteForm({
         type="button"
         onClick={handleSubmit}
         disabled={pending}
-        className="mt-5 rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
+        className="mt-5 rounded-xl bg-brand-strong px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
       >
         {pending
           ? "Enregistrement…"

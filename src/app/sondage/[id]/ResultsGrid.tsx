@@ -22,7 +22,7 @@ const MARK: Record<Availability, { symbol: string; label: string; className: str
   [Availability.YES]: {
     symbol: "✓",
     label: "Disponible",
-    className: "bg-yes/15 text-yes",
+    className: "bg-yes/15 text-yes-strong",
   },
   [Availability.MAYBE]: {
     symbol: "~",
@@ -94,7 +94,7 @@ export default function ResultsGrid({
                       : formatTime(slot.startsAt)}
                   </div>
                   {best && (
-                    <div className="mt-0.5 text-xs font-semibold text-brand">
+                    <div className="mt-0.5 text-xs font-semibold text-brand-strong">
                       ★ Idéal
                     </div>
                   )}
@@ -132,7 +132,7 @@ export default function ResultsGrid({
                     <Link
                       href={p.editHref}
                       aria-label={`Modifier la réponse de ${p.name}`}
-                      className="shrink-0 text-xs font-normal text-brand underline decoration-dotted"
+                      className="shrink-0 text-xs font-normal text-brand-strong underline decoration-dotted"
                     >
                       Modifier
                     </Link>
@@ -176,7 +176,7 @@ export default function ResultsGrid({
                 <td
                   key={slot.id}
                   className={`border-l border-border p-2 text-center ${
-                    best ? "bg-brand-soft font-semibold text-brand" : ""
+                    best ? "bg-brand-soft font-semibold text-brand-strong" : ""
                   }`}
                 >
                   <div className="text-base font-semibold">{t?.yes ?? 0}</div>

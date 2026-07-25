@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import CopyField from "@/components/CopyField";
+import DispoLogo from "@/components/DispoLogo";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -36,8 +37,8 @@ export default async function SharePage({ params, searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-brand-soft text-3xl">
-          🎉
+        <div className="mb-4 flex justify-center">
+          <DispoLogo variant="tile" size={56} />
         </div>
         <h1 className="text-3xl font-bold">Votre sondage est prêt !</h1>
         <p className="mt-2 text-muted">
@@ -62,7 +63,7 @@ export default async function SharePage({ params, searchParams }: PageProps) {
         <div className="flex flex-wrap gap-3">
           <Link
             href={adminUrl ?? publicUrl}
-            className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg transition hover:bg-brand-hover"
+            className="rounded-xl bg-brand-strong px-6 py-3 font-medium text-brand-fg transition hover:bg-brand-hover"
           >
             Voir le sondage
           </Link>

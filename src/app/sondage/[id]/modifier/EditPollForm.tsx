@@ -189,7 +189,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
         <button
           type="button"
           onClick={addRow}
-          className="mt-4 rounded-lg border border-dashed border-border px-4 py-2 text-sm font-medium text-brand transition hover:bg-brand-soft"
+          className="mt-4 rounded-lg border border-dashed border-border px-4 py-2 text-sm font-medium text-brand-strong transition hover:bg-brand-soft"
         >
           + Ajouter un créneau
         </button>
@@ -208,7 +208,7 @@ export default function EditPollForm({ data }: { data: EditPollData }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-brand px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
+          className="rounded-xl bg-brand-strong px-6 py-3 font-medium text-brand-fg shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
         >
           {pending ? "Enregistrement…" : "Enregistrer les modifications"}
         </button>

@@ -42,7 +42,7 @@ export default function RootLayout({
             </Link>
             <Link
               href="/creer"
-              className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-brand-fg transition hover:bg-brand-hover"
+              className="rounded-lg bg-brand-strong px-3 py-1.5 text-sm font-medium text-brand-fg transition hover:bg-brand-hover"
             >
               Créer un sondage
             </Link>
